@@ -2,6 +2,7 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { isAuthenticated } = require("../middlewares/route-guard.middleware");
 
 // User model for bank app
 const User = require("../models/User.model");
@@ -66,6 +67,11 @@ router.post("/login", async (req, res) => {
     console.error("Error logging in user:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+});
+
+// Verify if the user is authenticated
+router.get("/verify", isAuthenticated, (req, res) => {
+  res.json({ message: "User is authenticated" });
 });
 
 module.exports = router;
