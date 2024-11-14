@@ -1,51 +1,61 @@
-// account currency routes
-const router = require("express").Router();
+// routes/accounts.js
+const express = require("express");
+const router = express.Router();
 const Account = require("../models/Account.model");
+const User = require("../models/User.model");
 
-// get all accounts
-router.get("/", async (req, res) => {
-  try {
-    const accounts = await Account.find();
-    res.json(accounts);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// create a new account
+// Route to create a new account
 router.post("/", async (req, res) => {
   try {
-    const account = new Account(req.body);
-    await account.save();
-    res.json(account);
+    const { userId, accountName } = req.body;
+
+    // Verify if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // It creates a new account and saves it to the database
+    const newAccount = new Account({ userId, accountName });
+    await newAccount.save();
+
+    res.status(201).json(newAccount);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// update an account
-router.put("/:accountId", async (req, res) => {
+// Route to get a specific account
+router.get("/:accountId", async (req, res) => {
   try {
-    const account = await Account.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const { accountId } = req.params;
+    const account = await Account.findById(accountId);
+
+    if (!account) {
+      return res.status(404).json({ message: "Conta não encontrada." });
+    }
+
     res.json(account);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// delete an account
-router.delete("/:accountId", async (req, res) => {
+// Routes to get all accounts for a specific user
+router.get("/user/:userId", async (req, res) => {
   try {
-    const account = await Account.findByIdAndDelete(req.params.id);
-    res.json(account);
+    const { userId } = req.params;
+    const accounts = await Account.find({ userId });
+
+    if (!accounts || accounts.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Nenhuma conta encontrada para este usuário." });
+    }
+
+    res.json(accounts);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 });
 

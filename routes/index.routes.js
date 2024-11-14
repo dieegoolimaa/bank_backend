@@ -9,5 +9,8 @@ router.get("/", (req, res) => {
 const accountRoutes = require("./account.routes");
 router.use("/account", accountRoutes);
 
+const transactionRoutes = require("./transactions.routes");
+router.use("/transactions", transactionRoutes);
+
 // Export the router
 module.exports = router;
