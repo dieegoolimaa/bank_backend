@@ -19,8 +19,7 @@ router.post("/register", async (req, res) => {
     }
 
     // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
     const user = new User({ username, email, password: hashedPassword });
@@ -38,31 +37,28 @@ router.post("/login", async (req, res) => {
   try {
     // Login with email or username and password
     const { email, password } = req.body || {};
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
-    }
 
     // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res
+        .status(401)
+        .json({ message: "This user does not exist in our database" });
     }
 
-    // Check if the password is correct
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    // Generate a JWT token
+    // Generate a JWT token through cookies
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      algorithm: "HS256",
-      expiresIn: "6h",
+      expiresIn: "1h",
     });
 
-    res.status(200).json({ token });
+    // Set the token as a cookie and send a success response
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hora
+    });
+    res.status(200).send("Logged in successfully");
   } catch (error) {
     console.error("Error logging in user:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -70,8 +66,8 @@ router.post("/login", async (req, res) => {
 });
 
 // Verify if the user is authenticated
-router.get("/verify", isAuthenticated, (req, res) => {
-  res.json({ message: "User is authenticated" });
+router.get("/protected", isAuthenticated, (req, res) => {
+  res.status(200).json({ message: "User is authenticated" });
 });
 
 module.exports = router;

@@ -1,28 +1,16 @@
 const JWT = require("jsonwebtoken");
 
 const isAuthenticated = (req, res, next) => {
+  const token = req.cookies.authToken;
+  if (!token) return res.status(401).send("No token provided");
+
   try {
-    const token = req.headers.authorization.split(" ")[1]; // Bearer <token>
-
-    // Check if the token exists
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Verify the token
-    const decodedToken = JWT.verify(token, process.env.JWT_SECRET);
-
-    // Check if the token is valid
-    if (!decodedToken) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Set the user ID in the request object
-    req.userId = decodedToken.userId;
-    next();
-  } catch (error) {
-    console.error("Error verifying token:", error);
-    res.status(401).json({ message: "Unauthorized" });
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({
+      message: `Welcome, ${user.username}! You are logged in and authorized to access this route`,
+    });
+  } catch {
+    res.status(403).send("Token not valid");
   }
 };
 
