@@ -1,0 +1,26 @@
+GET http://localhost:5000/api/
+
+###
+// Login route
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "username": "emailtest",
+  "email": "email@example.com"
+}
+
+###
+// Register route
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "username": "emailtest",
+  "email": "email@example.com",
+  "password": "123456"
+}
+
+###
+// Logout route
+POST http://localhost:5000/auth/logout
