@@ -3,9 +3,10 @@ const router = require("express").Router();
 const express = require("express");
 const Transaction = require("../models/Transaction.model");
 const Account = require("../models/Account.model");
+const { isAuthenticated } = require("../middlewares/route-guard.middleware");
 
 // Route to create a new transaction
-router.post("/", async (req, res) => {
+router.post("/", isAuthenticated, async (req, res) => {
   try {
     const { accountId, type, amount, currency } = req.body;
 
@@ -37,7 +38,7 @@ router.post("/", async (req, res) => {
 });
 
 // Route to get the balance of an account
-router.get("/:accountId/balance", async (req, res) => {
+router.get("/:accountId/balance", isAuthenticated, async (req, res) => {
   try {
     const { accountId } = req.params;
     const account = await Account.findById(accountId);

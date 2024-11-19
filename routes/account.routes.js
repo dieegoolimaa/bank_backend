@@ -3,9 +3,10 @@ const express = require("express");
 const router = express.Router();
 const Account = require("../models/Account.model");
 const User = require("../models/User.model");
+const { isAuthenticated } = require("../middlewares/route-guard.middleware");
 
 // Route to create a new account
-router.post("/", async (req, res) => {
+router.post("/", isAuthenticated, async (req, res) => {
   try {
     const { userId, accountName } = req.body;
 
@@ -26,13 +27,13 @@ router.post("/", async (req, res) => {
 });
 
 // Route to get a specific account
-router.get("/:accountId", async (req, res) => {
+router.get("/:accountId", isAuthenticated, async (req, res) => {
   try {
     const { accountId } = req.params;
     const account = await Account.findById(accountId);
 
     if (!account) {
-      return res.status(404).json({ message: "Conta não encontrada." });
+      return res.status(404).json({ message: "Account not found" });
     }
 
     res.json(account);
@@ -42,7 +43,7 @@ router.get("/:accountId", async (req, res) => {
 });
 
 // Routes to get all accounts for a specific user
-router.get("/user/:userId", async (req, res) => {
+router.get("/user/:userId", isAuthenticated, async (req, res) => {
   try {
     const { userId } = req.params;
     const accounts = await Account.find({ userId });
@@ -50,7 +51,7 @@ router.get("/user/:userId", async (req, res) => {
     if (!accounts || accounts.length === 0) {
       return res
         .status(404)
-        .json({ message: "Nenhuma conta encontrada para este usuário." });
+        .json({ message: "No accounts found for this user" });
     }
 
     res.json(accounts);

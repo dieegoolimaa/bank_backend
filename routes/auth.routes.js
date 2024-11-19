@@ -47,18 +47,15 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate a JWT token through cookies
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const accessToken = jwt.sign(
+      {
+        id: user._id,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    // Set the token as a cookie and send a success response
-    res.cookie("authToken", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000, // 1 hora
-    });
-    res.status(200).send("Logged in successfully");
+    res.send({ accessToken: accessToken, email: user.email, id: user._id });
   } catch (error) {
     console.error("Error logging in user:", error);
     res.status(500).json({ message: "Internal server error" });
