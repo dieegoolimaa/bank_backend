@@ -58,14 +58,27 @@ router.post("/login", async (req, res) => {
         id: user._id,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1m" }
     );
+
+    // Set the token as a cookie
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
 
     res.send({ accessToken: accessToken, email: user.email, id: user._id });
   } catch (error) {
     console.error("Error logging in user:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+});
+
+// Logout a user
+router.post("/logout", (req, res) => {
+  res.clearCookie("accessToken");
+  res.status(200).json({ message: "User logged out successfully" });
 });
 
 // Verify if the user is authenticated
