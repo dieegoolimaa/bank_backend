@@ -1,15 +1,17 @@
-const JWT = require("jsonwebtoken");
-
 const isAuthenticated = (req, res, next) => {
   try {
-    const authenticated = req.headers.authorization;
-    const token = authenticated && authenticated.split(" ")[1];
+    const token =
+      req.cookies.accessToken ||
+      (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
     if (!token) {
-      return res.status(401).json({ message: "Token not generated" });
+      return res.status(401).json({ message: "No token provided" });
     }
 
     JWT.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err && err.name === "TokenExpiredError") {
+        return res.status(401).json({ message: "Token expired" });
+      }
       if (err) {
         return res.status(403).json({ message: "Invalid token" });
       }
