@@ -24,3 +24,8 @@ Content-Type: application/json
 ###
 // Logout route
 POST http://localhost:5000/auth/logout
+
+###
+// Check auth
+
+POST http://localhost:5000/auth/protected

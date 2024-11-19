@@ -46,6 +46,12 @@ router.post("/login", async (req, res) => {
         .json({ message: "This user does not exist in our database" });
     }
 
+    // Check if the password is correct
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
     // Generate a JWT token through cookies
     const accessToken = jwt.sign(
       {

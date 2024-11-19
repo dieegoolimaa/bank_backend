@@ -2,10 +2,10 @@ const JWT = require("jsonwebtoken");
 
 const isAuthenticated = (req, res, next) => {
   try {
-    const authenticated = req.headers["auth-token"];
+    const authenticated = req.headers.authorization;
     const token = authenticated && authenticated.split(" ")[1];
 
-    if (token == null) {
+    if (!token) {
       return res.status(401).json({ message: "Token not generated" });
     }
 
