@@ -1,3 +1,5 @@
+const JWT = require("jsonwebtoken");
+
 const isAuthenticated = (req, res, next) => {
   try {
     const token =
