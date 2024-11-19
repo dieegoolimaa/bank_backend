@@ -62,12 +62,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Logout a user
-router.post("/logout", (req, res) => {
-  res.clearCookie("authToken");
-  res.status(200).send("Logged out successfully");
-});
-
 // Verify if the user is authenticated
 router.get("/protected", isAuthenticated, (req, res) => {
   res.status(200).json({ message: "User is authenticated" });
