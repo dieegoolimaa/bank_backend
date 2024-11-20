@@ -7,7 +7,7 @@ const isAuthenticated = (req, res, next) => {
       (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
     if (!token) {
-      return res.status(401).json({ message: "No token provided" });
+      return res.status(401).json({ message: "No token available" });
     }
 
     JWT.verify(token, process.env.JWT_SECRET, (err, user) => {

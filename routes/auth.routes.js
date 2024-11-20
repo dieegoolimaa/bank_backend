@@ -58,7 +58,7 @@ router.post("/login", async (req, res) => {
         id: user._id,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1m" }
+      { expiresIn: "1h" }
     );
 
     // Set the token as a cookie
