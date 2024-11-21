@@ -11,6 +11,10 @@ const accountSchema = new mongoose.Schema({
     default: "USD",
   },
 
+  balance: {
+    Total: { type: Number, default: 0 },
+  },
+
   createdAt: { type: Date, default: Date.now },
 });
 

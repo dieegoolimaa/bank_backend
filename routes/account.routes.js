@@ -8,7 +8,12 @@ const { isAuthenticated } = require("../middlewares/route-guard.middleware");
 // Route to create a new account
 router.post("/", isAuthenticated, async (req, res) => {
   try {
-    const { userId, accountName } = req.body;
+    const { userId, accountName, currency, balance } = req.body;
+
+    // Verify if the currency is valid
+    if (!["USD", "EUR", "BRL"].includes(currency)) {
+      return res.status(400).json({ message: "Invalid currency" });
+    }
 
     // Verify if the user exists
     const user = await User.findById(userId);
@@ -16,11 +21,11 @@ router.post("/", isAuthenticated, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // It creates a new account and saves it to the database
-    const newAccount = new Account({ userId, accountName });
-    await newAccount.save();
+    // Create a new account
+    const account = new Account({ userId, accountName, currency, balance });
+    await account.save();
 
-    res.status(201).json(newAccount);
+    res.status(201).json({ message: "Account created successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
