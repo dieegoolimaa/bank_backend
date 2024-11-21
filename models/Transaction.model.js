@@ -1,3 +1,4 @@
+// models/Transaction.model.js
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
@@ -8,7 +9,7 @@ const transactionSchema = new mongoose.Schema({
   },
   type: { type: String, enum: ["credit", "debit"], required: true },
   amount: { type: Number, required: true },
-  currency: { type: String, enum: ["USD", "EUR", "BRL"], required: true },
+  currency: { type: String, enum: "EUR", required: true },
   date: { type: Date, default: Date.now },
 });
 

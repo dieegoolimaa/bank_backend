@@ -1,6 +1,5 @@
 // Routes transactions
 const router = require("express").Router();
-const express = require("express");
 const Transaction = require("../models/Transaction.model");
 const Account = require("../models/Account.model");
 const { isAuthenticated } = require("../middlewares/route-guard.middleware");
@@ -11,14 +10,14 @@ router.post("/", isAuthenticated, async (req, res) => {
     const { accountId, type, amount, currency } = req.body;
 
     // Verify if the currency is valid
-    if (!["USD", "EUR", "BRL"].includes(currency)) {
-      return res.status(400).json({ message: "Invalid currency" });
+    if (!"EUR".includes(currency)) {
+      return res.status(400).json({ message: "This account operates in EUR" });
     }
 
     // Verify if the account exists
     const account = await Account.findById(accountId);
     if (!account) {
-      return res.status(404).json({ message: "Account not found" });
+      return res.status(404).json({ message: "There is none open account" });
     }
 
     // Create a new transaction
@@ -38,7 +37,7 @@ router.post("/", isAuthenticated, async (req, res) => {
 });
 
 // Route to get the balance of an account
-router.get("/:accountId/balance", isAuthenticated, async (req, res) => {
+router.get("/:accountId", isAuthenticated, async (req, res) => {
   try {
     const { accountId } = req.params;
     const transaction = await Account.findById(accountId);
