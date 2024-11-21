@@ -1,80 +1,75 @@
-# Bank Backend
+# Bank App Backend
 
-The Bank Backend is a RESTful API built using Node.js and Express.js, designed to manage user accounts, transactions, and authentication for a banking application. The application utilizes MongoDB as its database and Mongoose as the ODM (Object Data Modeling) library.
+This is the backend for a simple bank application. It provides RESTful API endpoints for user authentication, account management, and transaction processing. The backend is built using Node.js, Express, and MongoDB.
 
 ## Features
 
 - User registration and authentication
-- Secure password hashing with bcryptjs
-- JSON Web Token (JWT) for authentication
-- Account management with multiple currencies (USD, EUR, BRL)
-- Transaction management (credit and debit operations)
+- Account creation and management
+- Transaction processing (credit and debit)
+- JWT-based authentication
+- CORS enabled for frontend communication
 
 ## Installation
 
 1. Clone the repository:
-
    ```bash
-   git clone https://github.com/dieegoolimaa/bank_backend.git
+   git clone https://github.com/your-repo/bank-app-backend.git
+   cd bank-app-backend
    ```
 
-2. Navigate to the project directory:
-
-   ```bash
-   cd bank_backend
-   ```
-
-3. Install dependencies:
-
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-4. Set up environment variables by creating a `.env` file in the root directory, and specify the following variables:
-
-   ```
-   MONGO_URI=your_mongo_database_uri
-   JWT_SECRET=your_jwt_secret_key
-   FRONTEND_URL=http://localhost:5173
-   ```
-
-5. Start the server:
-
-   ```bash
-   npm run dev
-   ```
-
-   For development mode with live-reloading, use:
-
+3. Start the development server:
    ```bash
    npm run dev
    ```
 
 ## Routes
 
-### Authentication Routes
+### Authentication
 
-- **POST** `/auth/register` - Register a new user
-- **POST** `/auth/login` - Log in a user
+- **Register a User**:  
+  `POST /auth/register`  
+  Request Body: `{ "username": "string", "email": "string", "password": "string" }`
 
-### Account Routes
+- **Login a User**:  
+  `POST /auth/login`  
+  Request Body: `{ "email": "string", "password": "string" }`  
+  Response: Returns a JWT token in cookies.
 
-- **POST** `/api/account` - Create a new account (requires authentication)
-- **GET** `/api/account/:accountId` - Get a specific account (requires authentication)
-- **GET** `/api/account/user/:userId` - Get all accounts for a specific user (requires authentication)
+- **Logout a User**:  
+  `POST /auth/logout`
 
-### Transaction Routes
+### Account
 
-- **POST** `/api/transactions` - Create a new transaction (requires authentication)
-- **GET** `/api/transactions/:accountId/balance` - Get the balance of an account (requires authentication)
+- **Create an Account**:  
+  `POST /api/account`  
+  Request Body: `{ "userId": "string", "accountName": "string", "currency": "EUR", "balance": number }`  
+  Requires JWT authentication.
 
-## Middleware
+- **Get All Accounts**:  
+  `GET /api/account`  
+  Requires JWT authentication.
 
-- `isAuthenticated` - Middleware to protect routes by verifying JWT tokens.
+### Transactions
 
-## Error Handling
+- **Create a Transaction**:  
+  `POST /api/transactions`  
+  Request Body: `{ "accountId": "string", "type": "credit|debit", "amount": number, "currency": "EUR" }`  
+  Requires JWT authentication.
 
-- Custom error handling middleware to return JSON responses for unhandled routes and errors.
+- **Get Transactions for an Account**:  
+  `GET /api/transactions/:accountId`  
+  Query Parameters: `?type=credit|debit` (optional)  
+  Requires JWT authentication.
+
+## Testing
+
+To test the API, you can use tools like [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/). Make sure your MongoDB instance is running and the server is started using `npm run dev`.
 
 ## License
 
