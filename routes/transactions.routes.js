@@ -10,8 +10,10 @@ router.post("/", isAuthenticated, async (req, res) => {
     const { accountId, type, amount, currency } = req.body;
 
     // Verify if the currency is valid
-    if (!"EUR".includes(currency)) {
-      return res.status(400).json({ message: "This account operates in EUR" });
+    if (currency !== "EUR") {
+      return res
+        .status(400)
+        .json({ message: "This account operates in EUR only" });
     }
 
     // Verify if the account exists
@@ -24,33 +26,51 @@ router.post("/", isAuthenticated, async (req, res) => {
     const transaction = new Transaction({ accountId, type, amount, currency });
     await transaction.save();
 
-    // Update the account balance
+    // Update account balance
     const balanceUpdate = type === "credit" ? amount : -amount;
-    account.balance[currency] =
-      (account.balance[currency] || 0) + balanceUpdate;
+    account.balance += balanceUpdate;
+
+    // Check for insufficient balance
+    if (account.balance < 0) {
+      return res.status(400).json({ message: "Insufficient funds" });
+    }
+
     await account.save();
-    res.status(201).json(transaction);
+    res.status(201).json({ message: "Transaction successful", transaction });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
-// Route to get the balance of an account
+// Route to get all transactions for a specific account
 router.get("/:accountId", isAuthenticated, async (req, res) => {
   try {
     const { accountId } = req.params;
-    const transaction = await Account.findById(accountId);
-    if (!transaction) {
-      return res
-        .status(404)
-        .json({ message: "This account do not have any transaction" });
+    const { type } = req.query; // Optional query parameter for filtering by type (credit/debit)
+
+    // Verify if the account exists
+    const account = await Account.findById(accountId);
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
     }
 
-    // Return the balance of all currencies
-    res.json({ balance: account.balance });
+    // Build the query object
+    const query = { accountId };
+    if (type) {
+      if (!["credit", "debit"].includes(type)) {
+        return res.status(400).json({ message: "Invalid transaction type" });
+      }
+      query.type = type;
+    }
+
+    // Fetch transactions
+    const transactions = await Transaction.find(query).sort({ date: -1 }); // Sort by most recent first
+
+    res.status(200).json({ transactions });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

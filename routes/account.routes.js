@@ -11,8 +11,10 @@ router.post("/", isAuthenticated, async (req, res) => {
     const { userId, accountName, currency, balance = 0 } = req.body;
 
     // Verify if the currency is valid
-    if (!"EUR".includes(currency)) {
-      return res.status(400).json({ message: "This app only works in EUR" });
+    if (currency !== "EUR") {
+      return res
+        .status(400)
+        .json({ message: "This account operates in EUR only" });
     }
 
     // Verify if the user exists
