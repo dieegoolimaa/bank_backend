@@ -8,7 +8,7 @@ const { isAuthenticated } = require("../middlewares/route-guard.middleware");
 // Route to create a new account
 router.post("/", isAuthenticated, async (req, res) => {
   try {
-    const { userId, accountName, currency, balance } = req.body;
+    const { userId, accountName, currency, balance = 0 } = req.body;
 
     // Verify if the currency is valid
     if (!["USD", "EUR", "BRL"].includes(currency)) {
@@ -18,14 +18,27 @@ router.post("/", isAuthenticated, async (req, res) => {
     // Verify if the user exists
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ message: "User not found to create account balance" });
     }
 
     // Create a new account
     const account = new Account({ userId, accountName, currency, balance });
     await account.save();
 
-    res.status(201).json({ message: "Account created successfully" });
+    // Create a initial balance transaction
+    if (balance > 0) {
+      const transaction = new Transaction({
+        accountId,
+        type: "credit",
+        amount: balance,
+        currency,
+      });
+      await transaction.save();
+    }
+
+    res.status(201).json({ message: "Account balance created successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

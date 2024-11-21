@@ -41,9 +41,11 @@ router.post("/", isAuthenticated, async (req, res) => {
 router.get("/:accountId/balance", isAuthenticated, async (req, res) => {
   try {
     const { accountId } = req.params;
-    const account = await Account.findById(accountId);
-    if (!account) {
-      return res.status(404).json({ message: "Account not found" });
+    const transaction = await Account.findById(accountId);
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ message: "This account do not have any transaction" });
     }
 
     // Return the balance of all currencies
