@@ -26,6 +26,16 @@ router.post("/", isAuthenticated, async (req, res) => {
   }
 });
 
+// Route to get all accounts
+router.get("/", isAuthenticated, async (req, res) => {
+  try {
+    const accounts = await Account.find();
+    res.json(accounts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Route to get a specific account
 router.get("/:accountId", isAuthenticated, async (req, res) => {
   try {
@@ -37,24 +47,6 @@ router.get("/:accountId", isAuthenticated, async (req, res) => {
     }
 
     res.json(account);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Routes to get all accounts for a specific user
-router.get("/user/:userId", isAuthenticated, async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const accounts = await Account.find({ userId });
-
-    if (!accounts || accounts.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No accounts found for this user" });
-    }
-
-    res.json(accounts);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
