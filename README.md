@@ -71,6 +71,3 @@ This is the backend for a simple bank application. It provides RESTful API endpo
 
 To test the API, you can use tools like [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/). Make sure your MongoDB instance is running and the server is started using `npm run dev`.
 
-## License
-
-This project is licensed under the ISC License.
