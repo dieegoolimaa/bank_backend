@@ -30,6 +30,9 @@ router.post("/register", async (req, res) => {
     console.error("Error registering user:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+
+  // Forwad to profile route after creating the account
+  res.redirect("/profile");
 });
 
 // Login a user
