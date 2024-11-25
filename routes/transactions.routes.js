@@ -44,19 +44,26 @@ router.post("/", isAuthenticated, async (req, res) => {
 });
 
 // Route to get all transactions for a specific account
-router.get("/:accountId", isAuthenticated, async (req, res) => {
+router.get("/:userId", isAuthenticated, async (req, res) => {
   try {
-    const { accountId } = req.params;
-    const { type } = req.query; // Optional query parameter for filtering by type (credit/debit)
+    const { userId } = req.params;
+    const { type } = req.query;
+
+    console.log(
+      "Fetching transactions for accountId:",
+      userId,
+      "with type:",
+      type
+    );
 
     // Verify if the account exists
-    const account = await Account.findById(accountId);
+    const account = await Account.findById(userId);
     if (!account) {
       return res.status(404).json({ message: "Account not found" });
     }
 
-    // Build the query object
-    const query = { accountId };
+    // Fetch transactions for the account
+    const query = { userId };
     if (type) {
       if (!["credit", "debit"].includes(type)) {
         return res.status(400).json({ message: "Invalid transaction type" });
@@ -64,12 +71,12 @@ router.get("/:accountId", isAuthenticated, async (req, res) => {
       query.type = type;
     }
 
-    // Fetch transactions
-    const transactions = await Transaction.find(query).sort({ date: -1 }); // Sort by most recent first
+    const transactions = await Transaction.find(query).sort({ date: -1 });
+    console.log("Transactions fetched:", transactions.length);
 
     res.status(200).json({ transactions });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching transactions:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

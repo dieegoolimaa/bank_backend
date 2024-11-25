@@ -1,6 +1,5 @@
-import { isAuthenticated } from "../middlewares/route-guard.middleware.js";
-import Profile from "../models/Profile.model.js";
-import User from "../models/User.model.js";
+const { isAuthenticated } = require("../middlewares/route-guard.middleware");
+const express = require("express");
 const router = express.Router();
 
 // Profile creation
@@ -22,6 +21,12 @@ router.post("/", isAuthenticated, async (req, res) => {
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify if there is an existing profile
+    const existingProfile = await Profile.findOne({ userId });
+    if (existingProfile) {
+      return res.status(400).json({ message: "Profile already created" });
     }
 
     // Create a new profile
@@ -90,7 +95,7 @@ router.put("/", isAuthenticated, async (req, res) => {
 });
 
 // Get profile by user ID
-router.get("/", isAuthenticated, async (req, res) => {
+router.get("/:userId", isAuthenticated, async (req, res) => {
   try {
     const userId = req.user.id;
     const profile = await Profile.findOne({ userId });
